@@ -26,7 +26,8 @@ const theme = computed(() => campaignTheme(props.promo.id))
           <component :is="theme.primary" :size="13" class="shrink-0" aria-hidden="true" />
           <span class="truncate font-segoe text-micro">NeoCash Promo</span>
         </span>
-        <h3 class="mt-2 truncate text-promo-title text-white">{{ promo.title }}</h3>
+        <!-- Solid leading plus truncate clips Clash's descenders at 21px; the padding gives them room without moving anything. -->
+        <h3 class="-mb-1 mt-2 truncate pb-1 text-promo-title text-white">{{ promo.title }}</h3>
         <p class="mt-1 line-clamp-2 text-body leading-promo text-white/88">{{ promo.subtitle }}</p>
       </div>
       <span class="ml-3 flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white/92 shadow-logo">
