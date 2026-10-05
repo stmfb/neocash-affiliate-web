@@ -2,12 +2,13 @@
 /**
  * `_EarningsHero` (DESIGN_AUDIT.md §4.12): the blue total-earnings card with
  * Paid / Pending mini metrics and the commission-rate footnote. The rate comes
- * from the session, not the earnings endpoint.
+ * from the session, not the earnings endpoint. A `null` amount (not loaded, or
+ * failed) shows "—" like the Home tiles, where mobile shows ₦0.00.
  */
 const props = defineProps<{
-  totalKobo: number
-  paidKobo: number
-  pendingKobo: number
+  totalKobo: number | null
+  paidKobo: number | null
+  pendingKobo: number | null
   ratePercent: number | null
 }>()
 
@@ -31,10 +32,12 @@ const footnote = computed(() =>
 
     <div class="relative">
       <p class="text-body text-white">Total Earnings</p>
-      <AffiliateFitOrCompactAmount class="mt-2 text-hero text-white" :kobo="totalKobo" />
+      <AffiliateFitOrCompactAmount v-if="totalKobo !== null" class="mt-2 text-hero text-white" :kobo="totalKobo" />
+      <p v-else class="mt-2 text-hero text-white">—</p>
       <div class="mt-4 flex gap-3">
         <div v-for="mini in minis" :key="mini.label" class="min-w-0 flex-1 rounded-20 bg-white/12 p-3">
-          <AffiliateFitOrCompactAmount class="text-body font-semibold text-white" :kobo="mini.kobo" />
+          <AffiliateFitOrCompactAmount v-if="mini.kobo !== null" class="text-body font-semibold text-white" :kobo="mini.kobo" />
+          <p v-else class="text-body font-semibold text-white">—</p>
           <p class="mt-1 font-segoe text-label text-white">{{ mini.label }}</p>
         </div>
       </div>
