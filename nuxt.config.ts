@@ -12,8 +12,12 @@ export default defineNuxtConfig({
     // Server-only neocore host that /vault-mobile/v2/** is proxied to
     // (server/routes/vault-mobile/v2/[...path].ts). Host only, no path. A
     // NUXT_API_BASE environment variable overrides it at runtime if set.
-    apiBase: 'https://vault-mobile.dev.neocash.local',
+    // https://4a1efe7e86e8-8302610227555236033.ngrok-free.app
+    // https://zgqqt32k-8087.euw.devtunnels.ms
+    apiBase: 'https://4a1efe7e86e8-8302610227555236033.ngrok-free.app',
   },
+
+  devServer: { port: 4000, host: '0.0.0.0' },
 
   tailwindcss: {
     cssPath: '~/assets/css/tailwind.css',
