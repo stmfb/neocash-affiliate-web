@@ -12,6 +12,10 @@ import type { TabBarItem } from '~/types/ui'
  * `keepalive`, so each keeps its scroll position like mobile's IndexedStack.
  * Tabs are routes (/, /referrals, /earnings, /profile), so the browser back
  * button moves between them.
+ *
+ * A `pushed` page (the date-range picker) shows full-screen on white in
+ * place of the header, sheet and tab bar. It renders in the same slot, so the
+ * cached tabs stay put underneath, like a route pushed over mobile's shell.
  */
 interface ShellTab extends TabBarItem {
   title: string
@@ -32,6 +36,7 @@ const auth = useAuthStore()
 const affiliate = useAffiliateStore()
 const { promo: dialogPromo, open: dialogOpen } = usePromoDialog()
 
+const pushed = computed(() => route.meta.pushed === true)
 const current = computed(() => TABS.find((tab) => tab.key === route.path) ?? TABS[0]!)
 const subtitle = computed(() => current.value.subtitle ?? auth.agent?.referral_code ?? '')
 
@@ -47,10 +52,14 @@ onMounted(() => {
 <template>
   <AppColumn>
     <div class="flex h-dvh flex-col pt-[env(safe-area-inset-top)]">
-      <ShellHeader class="shrink-0" :title="current.title" :subtitle="subtitle" />
-      <div class="relative min-h-0 flex-1 overflow-hidden rounded-t-32 bg-surface-sheet">
+      <ShellHeader v-show="!pushed" class="shrink-0" :title="current.title" :subtitle="subtitle" />
+      <!-- The slot keeps its place in both modes, so switching never remounts the cached tabs. -->
+      <div
+        class="relative min-h-0 flex-1"
+        :class="pushed ? 'overflow-y-auto bg-white' : 'overflow-hidden rounded-t-32 bg-surface-sheet'"
+      >
         <slot />
-        <div class="absolute inset-x-5 bottom-[calc(20px+env(safe-area-inset-bottom))] z-10">
+        <div v-show="!pushed" class="absolute inset-x-5 bottom-[calc(20px+env(safe-area-inset-bottom))] z-10">
           <ShellTabBar :items="TABS" :selected="current.key" @select="selectTab" />
         </div>
       </div>

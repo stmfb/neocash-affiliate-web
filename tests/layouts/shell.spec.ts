@@ -45,6 +45,13 @@ describe('shell layout', () => {
     ])
   })
 
+  it('shows a pushed page full-screen, hiding the header and tab bar', async () => {
+    const wrapper = await mountShell('/date-range')
+    expect((wrapper.get('header').element as HTMLElement).style.display).toBe('none')
+    expect((wrapper.get('nav').element.parentElement as HTMLElement).style.display).toBe('none')
+    expect(wrapper.get('#tab-content').element.parentElement!.classList).toContain('bg-white')
+  })
+
   it('navigates when a tab is chosen', async () => {
     const wrapper = await mountShell('/')
     const earnings = wrapper.findAll('nav button')[2]!
