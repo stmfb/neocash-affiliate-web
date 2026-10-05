@@ -8,6 +8,11 @@ import type { H3Event } from 'h3'
  *
  * Target host: `runtimeConfig.apiBase` in nuxt.config.ts.
  *
+ * Dev tunnels in front of the backend (ngrok, VS Code devtunnels) answer
+ * browser-looking GETs with an HTML warning page instead of forwarding them,
+ * and the proxy passes the browser's User-Agent on. `TUNNEL_HEADERS` opts out
+ * of those pages. neocore ignores them.
+ *
  * In dev (`nuxt dev`) every call is logged to the terminal, whichever device
  * made it: one line for a normal `{message, data}` reply, the full body for
  * logins, errors and anything unexpected. Passwords are never logged and
@@ -15,10 +20,15 @@ import type { H3Event } from 'h3'
  */
 const API_PREFIX = '/vault-mobile/v2'
 
+const TUNNEL_HEADERS = {
+  'ngrok-skip-browser-warning': 'true',
+  'X-Tunnel-Skip-AntiPhishing-Page': 'true',
+}
+
 export default defineEventHandler(async (event) => {
   const { apiBase } = useRuntimeConfig(event)
   const target = `${apiBase.replace(/\/+$/, '')}${event.path}`
-  if (!import.meta.dev) return proxyRequest(event, target)
+  if (!import.meta.dev) return proxyRequest(event, target, { headers: TUNNEL_HEADERS })
 
   const route = `${event.method} ${event.path.slice(API_PREFIX.length)}`
   const isLogin = event.method === 'POST' && event.path.startsWith(`${API_PREFIX}/auth/login`)
@@ -26,6 +36,7 @@ export default defineEventHandler(async (event) => {
   const started = Date.now()
   try {
     return await proxyRequest(event, target, {
+      headers: TUNNEL_HEADERS,
       onResponse: async (_event, response) => {
         logCall({
           route,
